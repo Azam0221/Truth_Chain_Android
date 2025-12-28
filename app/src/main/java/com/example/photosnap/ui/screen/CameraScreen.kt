@@ -98,7 +98,7 @@ fun CameraScreen(
                                 val metadata = TrustManager.getWitnessData(context)
 
                                 // C. Sign Data
-                                val combinedData = bytes + metadata.toByteArray()
+                                val combinedData = bytes + metadata.toByteArray(Charsets.UTF_8)
                                 val signature = TrustManager.signData(combinedData)
 
 
