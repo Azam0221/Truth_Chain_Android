@@ -51,7 +51,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = badgeId,
             onValueChange = { badgeId = it },
-            label = { Text("Badge ID") },
+            label = { Text("Device Id") },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,

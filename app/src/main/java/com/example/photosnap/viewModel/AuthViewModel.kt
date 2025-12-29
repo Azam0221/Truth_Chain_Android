@@ -60,7 +60,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     _authState.value = AuthState.Error("Provisioning Failed: $errorMsg")
                 }
             } catch (e: Exception) {
-                _authState.value = AuthState.Error("Network Error: ${e.message}")
+                e.printStackTrace()
+                _authState.value = AuthState.Error("Error: ${e.message}")
             }
         }
     }
