@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.photosnap.data.CaptureHolder
 import com.example.photosnap.ui.screen.CameraScreen
 import com.example.photosnap.ui.screen.HomeScreen
+import com.example.photosnap.ui.screen.LoginScreen
 import com.example.photosnap.ui.screen.ProcessingScreen
 
 @Composable
@@ -15,9 +16,21 @@ fun Navigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "login"
     )
     {
+
+        composable("login") {
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.navigate("home") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+
         composable("home") {
             HomeScreen(
                 onCameraClick = { navController.navigate("camera") }
