@@ -7,6 +7,7 @@
 * **Hardware-Backed Security:** Utilizes the **Android Keystore System** to generate asymmetric key pairs (EC/RSA) inside the device's Trusted Execution Environment (TEE). The private key *never* leaves the hardware.
 * **Content Authenticity:** Captures photos using **CameraX** and immediately generates a digital signature of the image data.
 * **Tamper Proofing:** If a single pixel of the image is altered after capture, the signature verification will fail.
+* **Local Buffer:** Images are temporarily cached locally to ensure no data loss during the signing process.
 * **Seamless Upload:** Automatically uploads the image, signature, and public key to the TruthChain Backend for verification.
 
 ## Tech Stack
@@ -16,6 +17,7 @@
 * **Camera:** CameraX API
 * **Security:** Android Keystore System (Hardware Security Module integration)
 * **Networking:** Retrofit & OkHttp
+* **Offline Caching:** Images and metadata are stored locally first, ensuring no data is lost during capture.
 * **Concurrency:** Kotlin Coroutines & Flow
 
 ## Architecture
@@ -26,7 +28,8 @@ The app follows a Clean Architecture approach with MVVM:
 2.  **Sign:** The app calculates a SHA-256 hash of the image bytes.
 3.  **Encrypt:** The hash is signed using the hardware-backed Private Key.
 4.  **Transmit:** The Image + Signature + Public Key are sent to the Spring Boot backend.
-
+5.  **Sync:** WorkManager detects network availability and sends the payload to the
+   
 ## Getting Started
 
 ### Prerequisites
