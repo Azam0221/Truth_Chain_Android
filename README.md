@@ -44,7 +44,7 @@ The app follows a Clean Architecture approach with MVVM:
 4.  Connect a physical device (Emulators may not support all hardware-backed keystore features).
 5.  Run the application.
 
-## 🔐 How it Works (Under the Hood)
+## How it Works (Under the Hood)
 
 ```kotlin
 // Simplified Logic
