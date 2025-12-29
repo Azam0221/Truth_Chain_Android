@@ -35,7 +35,7 @@ class EvidenceRepository (
         val file = File(context.filesDir,"evidence_${System.currentTimeMillis()}.jpg")
         FileOutputStream(file).use{ it.write(imageBytes)}
 
-        val entity = EvidenceEntity(
+        val entity = EvidenceEntity( 
             imagePath = file.absolutePath,
             metaData = metadata,
             signature = signature,
