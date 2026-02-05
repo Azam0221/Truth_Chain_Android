@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.example.photosnap.sensor.SensorHelper
 import com.example.photosnap.trustManager.TrustManager
 import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
@@ -43,6 +44,15 @@ fun CameraScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
 
+    val sensorHelper = remember { SensorHelper(context)}
+
+    DisposableEffect(Unit){
+        sensorHelper.startListening()
+        onDispose {
+            sensorHelper.stopListening()
+        }
+    }
+
     var imageCapture: ImageCapture? by remember { mutableStateOf(null) }
 
     Box(modifier = Modifier.fillMaxSize()){
@@ -54,7 +64,6 @@ fun CameraScreen(
 
                 cameraProviderFuture.addListener({
                     val cameraProvider = cameraProviderFuture.get()
-
                     val preview = Preview.Builder().build()
                     preview.setSurfaceProvider(previewView.surfaceProvider)
 
@@ -65,7 +74,6 @@ fun CameraScreen(
                     val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
                     try {
-
                         cameraProvider.unbindAll()
                         cameraProvider.bindToLifecycle(
                             lifecycleOwner, cameraSelector, preview, imageCapture
@@ -95,14 +103,23 @@ fun CameraScreen(
                                 buffer.get(bytes)
 
                                 // B. Get Metadata (Location)
-                                val metadata = TrustManager.getWitnessData(context)
+                                val locationString = TrustManager.getWitnessData(context)
 
-                                // C. Sign Data
-                                val combinedData = bytes + metadata.toByteArray(Charsets.UTF_8)
+                                val parts = locationString.split(",")
+                                val lat = if (parts.isNotEmpty()) parts[0].trim() else "0.0"
+                                val long = if (parts.size > 1) parts[1].trim() else "0.0"
+
+                                val smartMetadata = sensorHelper.getEnrichedMetadata(lat, long)
+
+                                Log.d("TruthChain", "Captured Metadata: $smartMetadata")
+
+
+                                val combinedData = bytes + smartMetadata.toByteArray(Charsets.UTF_8)
+
                                 val signature = TrustManager.signData(combinedData)
 
 
-                                onCaptureSuccess(bytes, metadata, signature)
+                                onCaptureSuccess(bytes, smartMetadata, signature)
 
                                 image.close()
                             }
