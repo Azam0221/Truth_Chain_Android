@@ -20,9 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import com.example.photosnap.navigation.Navigation
+import com.example.photosnap.sensor.SensorHelper
 import com.example.photosnap.ui.theme.PhotoSnapTheme
 
 class MainActivity : ComponentActivity() {
+
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -31,7 +33,6 @@ class MainActivity : ComponentActivity() {
         val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
 
         if (cameraGranted && locationGranted) {
-
             setContent {
                 PhotoSnapTheme {
                     Navigation()
@@ -70,6 +71,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
     private fun hasPermissions(): Boolean {
         return ContextCompat.checkSelfPermission(
             this, Manifest.permission.CAMERA
@@ -78,4 +80,6 @@ class MainActivity : ComponentActivity() {
                     this, Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
     }
+
+
 }

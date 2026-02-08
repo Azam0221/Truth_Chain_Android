@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.photosnap.data.CaptureHolder
+import com.example.photosnap.sensor.SensorHelper
 import com.example.photosnap.ui.screen.CameraScreen
 import com.example.photosnap.ui.screen.HomeScreen
 import com.example.photosnap.ui.screen.LoginScreen
@@ -16,7 +17,7 @@ fun Navigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "home"
     )
     {
 
