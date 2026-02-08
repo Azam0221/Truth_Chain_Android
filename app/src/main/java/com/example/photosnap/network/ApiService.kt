@@ -13,7 +13,7 @@ import retrofit2.http.Part
 interface ApiService {
 
     @Multipart
-    @POST("/api/evidence/upload")
+    @POST("/api/v1/evidence/upload")
     suspend fun uploadEvidence(
         @Part image: MultipartBody.Part,
         @Part("metadata") metadata: RequestBody,

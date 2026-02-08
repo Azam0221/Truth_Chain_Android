@@ -10,7 +10,8 @@ import java.util.Collections
 
 object RetrofitClient {
 
-    private const val BASE_URL = "https://photosnapbackend-production.up.railway.app/"
+    //private const val BASE_URL = "https://photosnapbackend-production.up.railway.app/"
+    private const val BASE_URL = "http://10.71.32.236:8080/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.HEADERS
