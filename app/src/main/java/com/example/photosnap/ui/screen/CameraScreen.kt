@@ -25,12 +25,15 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.photosnap.sensor.SensorHelper
 import com.example.photosnap.trustManager.TrustManager
+import com.example.photosnap.utils.LuminosityAnalyzer
 import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
+import java.util.concurrent.Executors
 
 
 @Composable
 fun CameraScreen(
+
     onCaptureSuccess: (
             imageBytes: ByteArray,
             metaData: String,
@@ -40,6 +43,9 @@ fun CameraScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
+
+    // A background thread for the math (Required for ImageAnalysis)
+    val analysisExecutor = remember { Executors.newSingleThreadExecutor() }
 
     val sensorHelper = remember { SensorHelper(context)}
 
@@ -68,12 +74,22 @@ fun CameraScreen(
                         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                         .build()
 
+                    val imageAnalysis = ImageAnalysis.Builder()
+                        .setTargetResolution(android.util.Size(640, 480)) // Low Res for Battery
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .build()
+
+                    imageAnalysis.setAnalyzer(analysisExecutor, LuminosityAnalyzer { lux ->
+                        // PASS DATA TO SENSOR HELPER
+                        sensorHelper.updateLightFromCamera(lux)
+                    })
+
                     val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
                     try {
                         cameraProvider.unbindAll()
                         cameraProvider.bindToLifecycle(
-                            lifecycleOwner, cameraSelector, preview, imageCapture
+                            lifecycleOwner, cameraSelector, preview, imageCapture, imageAnalysis
                         )
                     } catch (e: Exception) {
                         Log.e("Camera", "Binding failed", e)
@@ -100,11 +116,18 @@ fun CameraScreen(
                                 buffer.get(bytes)
 
                                 // B. Get Metadata (Location)
-                                val locationString = TrustManager.getWitnessData(context)
 
-                                val parts = locationString.split(",")
-                                val lat = if (parts.isNotEmpty()) parts[0].trim() else "0.0"
-                                val long = if (parts.size > 1) parts[1].trim() else "0.0"
+                                val rawLocation = TrustManager.getWitnessData(context)
+                                var lat = "0.0"
+                                var long = "0.0"
+
+                                try {
+                                    val parts = rawLocation.split(",")
+                                    if (parts.isNotEmpty()) lat = parts[0].trim()
+                                    if (parts.size > 1) long = parts[1].trim()
+                                } catch (e: Exception) {
+                                    Log.e("TruthChain", "Location Parse Error", e)
+                                }
 
                                 val smartMetadata = sensorHelper.getEnrichedMetadata(lat, long)
 
